@@ -28,3 +28,11 @@ func TestParseFromSN(t *testing.T) {
 	testFields(ParseFromSN("0005653307"))
 	testFields(ParseFromWg26([3]byte{0x56, 0x43, 0x3B}))
 }
+
+func TestParse2(t *testing.T) {
+	id := ParseFromUint32(3659533)
+	t.Log("Number: ", id.Number)
+	t.Log("Wg26Hex: ", id.Wg26Hex)
+	t.Log("Wg26Bytes: ", id.Wg26Bytes)
+	t.Log("Std: ", id.Std())
+}

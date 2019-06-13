@@ -52,6 +52,13 @@ func ParseFromWg26(wg26std [3]byte) *Wg26Id {
 	}
 }
 
+// 从Uint32类型的维根26国际标准编码解析
+func ParseFromUint32(id uint32) *Wg26Id {
+	b := make([]byte, 4)
+	binary.BigEndian.PutUint32(b, id)
+	return ParseFromWg26([3]byte{b[1], b[2], b[3]})
+}
+
 func TrimZero(card string) int64 {
 	card = strings.TrimLeft(card, "0")
 	v, _ := strconv.ParseInt(card, 10, 64)
