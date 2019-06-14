@@ -36,11 +36,15 @@ func ParseFromCardNumber(number string) *Wg26Id {
 	nInt := TrimZero(number)
 	nHex := fmt.Sprintf("%06X", nInt)
 	bytes, _ := hex.DecodeString(nHex)
+	start := uint16(bytes[0])
+	end := bOrder.Uint16(bytes[1:])
 	return &Wg26Id{
-		CardSN:    number,
-		Wg26Hex:   nHex,
-		Wg26Start: uint16(bytes[0]),
-		Wg26End:   bOrder.Uint16(bytes[1:]),
+		CardSN:       number,
+		Wg26Hex:      nHex,
+		Wg26Start:    start,
+		Wg26End:      end,
+		Wg26SN:       fmt.Sprintf("%d%d", start, end),
+		Wg26SNFormat: AppendZero(fmt.Sprintf("%d,%d", start, end), LengthWG26SN+1),
 	}
 }
 
@@ -78,12 +82,14 @@ func ParseFromCardNumberValue(number uint32) *Wg26Id {
 	return ParseFromWg26([3]byte{b[1], b[2], b[3]})
 }
 
+// TrimZero 删除前导0字符
 func TrimZero(card string) int64 {
 	card = strings.TrimLeft(card, "0")
 	v, _ := strconv.ParseInt(card, 10, 64)
 	return v
 }
 
+// AppendZero 添加前导0字符
 func AppendZero(txt string, max int) string {
 	s := max - len(txt)
 	zeros := ""
@@ -91,6 +97,13 @@ func AppendZero(txt string, max int) string {
 		zeros += "0"
 	}
 	return zeros + txt
+}
+
+// IsDigits 返回字符串是否全为数字
+func IsDigits(str string) bool {
+	return strings.IndexFunc(str, func(c rune) bool {
+		return c < '0' || c > '9'
+	}) == -1
 }
 
 func toInt(v string) uint16 {
