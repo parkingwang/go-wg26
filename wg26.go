@@ -14,6 +14,7 @@ import (
 
 const (
 	LengthNumber = 10
+	LengthWG26SN = 8
 )
 
 var (
@@ -22,16 +23,12 @@ var (
 
 // 维根26编码
 type Wg26Id struct {
-	Number    string  // 原始十位卡号
-	Wg26Hex   string  // 维根26十六进制
-	Wg26Bytes [3]byte // 维根26字节码
-	Wg26Start uint16  // 维根26，前段
-	Wg26End   uint16  // 维根26，后段
-}
-
-// Std 返回维根26标准卡号格式化字符串
-func (id *Wg26Id) Std() string {
-	return "0" + fmt.Sprintf("%d,%d", id.Wg26Start, id.Wg26End)
+	CardSN       string // 原始十位卡号
+	Wg26Hex      string // 十六进制
+	Wg26Start    uint16 // 前段
+	Wg26End      uint16 // 后段
+	Wg26SN       string // WG26标准卡号
+	Wg26SNFormat string // WG26标准8位卡号
 }
 
 // 从标准10位卡号解析
@@ -40,9 +37,8 @@ func ParseFromCardNumber(number string) *Wg26Id {
 	nHex := fmt.Sprintf("%06X", nInt)
 	bytes, _ := hex.DecodeString(nHex)
 	return &Wg26Id{
-		Number:    number,
+		CardSN:    number,
 		Wg26Hex:   nHex,
-		Wg26Bytes: [3]byte{bytes[0], bytes[1], bytes[2]},
 		Wg26Start: uint16(bytes[0]),
 		Wg26End:   bOrder.Uint16(bytes[1:]),
 	}
@@ -52,12 +48,15 @@ func ParseFromCardNumber(number string) *Wg26Id {
 // [0] Start
 // [1-2] End
 func ParseFromWg26(wg26std [3]byte) *Wg26Id {
+	start := uint16(wg26std[0])
+	end := bOrder.Uint16(wg26std[1:])
 	return &Wg26Id{
-		Number:    AppendZero(fmt.Sprintf("%d", bOrder.Uint32([]byte{0, wg26std[0], wg26std[1], wg26std[2]})), LengthNumber),
-		Wg26Hex:   fmt.Sprintf("%06X", wg26std),
-		Wg26Bytes: wg26std,
-		Wg26Start: uint16(wg26std[0]),
-		Wg26End:   bOrder.Uint16(wg26std[1:]),
+		CardSN:       AppendZero(fmt.Sprintf("%d", bOrder.Uint32([]byte{0, wg26std[0], wg26std[1], wg26std[2]})), LengthNumber),
+		Wg26Hex:      fmt.Sprintf("%06X", wg26std),
+		Wg26Start:    start,
+		Wg26End:      end,
+		Wg26SN:       fmt.Sprintf("%d%d", start, end),
+		Wg26SNFormat: AppendZero(fmt.Sprintf("%d,%d", start, end), LengthWG26SN+1),
 	}
 }
 

@@ -12,7 +12,7 @@ import (
 
 func TestParseFromSN(t *testing.T) {
 	testFields := func(id *Wg26Id) {
-		if "0005653307" != id.Number {
+		if "0005653307" != id.CardSN {
 			t.Error("Not match")
 		}
 		if "56433B" != id.Wg26Hex {
@@ -27,7 +27,7 @@ func TestParseFromSN(t *testing.T) {
 		if 17211 != id.Wg26End {
 			t.Error("not match")
 		}
-		if "086,17211" != id.Std() {
+		if "086,17211" != id.Wg26SN {
 			t.Error("Not match")
 		}
 	}
@@ -38,22 +38,24 @@ func TestParseFromSN(t *testing.T) {
 
 func TestParse1(t *testing.T) {
 	id := ParseFromCardNumberValue(3659533)
-	t.Log("Number: ", id.Number)
+	t.Log("CardSN: ", id.CardSN)
 	t.Log("Wg26Hex: ", id.Wg26Hex)
 	t.Logf("Wg26Bytes: %X", id.Wg26Bytes)
 	t.Logf("Wg26Start: %d", id.Wg26Start)
 	t.Logf("Wg26End: %d", id.Wg26End)
-	t.Log("Std: ", id.Std())
+	t.Log("Wg26SN: ", id.Wg26SN)
+	t.Log("Wg26SNFormat: ", id.Wg26SNFormat)
 }
 
 func TestParse2(t *testing.T) {
 	data := []byte{0xfb, 0x7c, 0x83, 0x00}
 	wg26Id := fmt.Sprintf("%d", binary.LittleEndian.Uint32(data))
 	id := ParseFromWg26Number(wg26Id)
-	t.Log("Number: ", id.Number)
+	t.Log("CardSN: ", id.CardSN)
 	t.Log("Wg26Hex: ", id.Wg26Hex)
 	t.Logf("Wg26Bytes: %X", id.Wg26Bytes)
 	t.Logf("Wg26Start: %d", id.Wg26Start)
 	t.Logf("Wg26End: %d", id.Wg26End)
-	t.Log("Std: ", id.Std())
+	t.Log("Wg26SN: ", id.Wg26SN)
+	t.Log("Wg26SNFormat: ", id.Wg26SNFormat)
 }
